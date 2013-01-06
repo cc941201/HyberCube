@@ -251,21 +251,18 @@ class Main extends JFrame {
 		exportSelectedData.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				if (((currentMode == 1) && (table.getSelectedRowCount() == 0))
-						|| ((currentMode != 1) && (list.getSelectedValue() == null)))
+				int[] selected;
+				if (currentMode == 1)
+					selected = table.getSelectedRows();
+				else
+					selected = list.getSelectedIndices();
+				if (selected.length == 0)
 					JOptionPane.showMessageDialog(Main.this, "请选择条目", "提示",
 							JOptionPane.INFORMATION_MESSAGE);
 				else {
-					String[] id;
-					if (currentMode == 1) {
-						int[] selected = table.getSelectedRows();
-						id = new String[selected.length];
-						for (int i = 0; i < selected.length; i++)
-							id[i] = database.id[selected[i]];
-					} else {
-						id = new String[1];
-						id[0] = (String) list.getSelectedValue();
-					}
+					String[] id = new String[selected.length];
+					for (int i = 0; i < selected.length; i++)
+						id[i] = database.id[selected[i]];
 					new Port(Main.this, 1, id);
 				}
 			}
@@ -299,23 +296,24 @@ class Main extends JFrame {
 		deleteButton.setPreferredSize(dataButton);
 		deleteButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (((currentMode == 1) && (table.getSelectedRowCount() == 0))
-						|| ((currentMode != 1) && (list.getSelectedValue() == null)))
+				int[] selected;
+				if (currentMode == 1)
+					selected = table.getSelectedRows();
+				else
+					selected = list.getSelectedIndices();
+				if (selected.length == 0)
 					JOptionPane.showMessageDialog(Main.this, "请选择条目", "提示",
 							JOptionPane.INFORMATION_MESSAGE);
 				else if (JOptionPane.showConfirmDialog(Main.this, "是否确认删除？",
 						"确认", JOptionPane.YES_NO_OPTION) == 0)
 					try {
-						if (currentMode == 1) {
-							int[] selected = table.getSelectedRows();
-							for (int i = 0; i < selected.length; i++)
-								database.delete(selected[i]);
-						} else
-							database.delete(list.getSelectedIndex());
+						for (int i = 0; i < selected.length; i++)
+							database.delete(selected[i]);
 						refresh();
 					} catch (Exception e1) {
 						JOptionPane.showMessageDialog(Main.this, "删除失败", "错误",
 								JOptionPane.ERROR_MESSAGE);
+						e1.printStackTrace();
 					}
 			}
 		});

@@ -1,4 +1,4 @@
 HyberCube
 =========
 
-A database management application for SDU.
+A database management application for SDU

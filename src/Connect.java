@@ -51,22 +51,29 @@ class Connect {
 	}
 
 	void delete(int index) throws Exception {
-		File origin = new File(Configure.siteDirectory + "pic/"
-				+ pic[index].substring(0, pic[index].length() - 5) + "/"
-				+ pic[index].substring(pic[index].length() - 5) + ".jpg");
-		File move = new File(Configure.siteDirectory + "picdeleted/"
-				+ pic[index].substring(0, pic[index].length() - 5) + "/"
-				+ pic[index].substring(pic[index].length() - 5) + ".jpg");
-		File oldPath = new File(Configure.siteDirectory + "pic/"
-				+ pic[index].substring(0, pic[index].length() - 5) + "/");
-		File newPath = new File(Configure.siteDirectory + "picdeleted/"
-				+ pic[index].substring(0, pic[index].length() - 5) + "/");
-		if (!newPath.exists())
-			newPath.mkdirs();
-		origin.renameTo(move);
-		File[] oldPathFiles = oldPath.listFiles();
-		if (oldPathFiles.length == 0)
-			oldPath.delete();
+		if (pic[index].length() == 32) {
+			File origin = new File(Configure.siteDirectory + "pic/"
+					+ pic[index].substring(0, pic[index].length() - 5) + "/"
+					+ pic[index].substring(pic[index].length() - 5) + ".jpg");
+			if (origin.exists()) {
+				File move = new File(Configure.siteDirectory + "picdeleted/"
+						+ pic[index].substring(0, pic[index].length() - 5)
+						+ "/" + pic[index].substring(pic[index].length() - 5)
+						+ ".jpg");
+				File oldPath = new File(Configure.siteDirectory + "pic/"
+						+ pic[index].substring(0, pic[index].length() - 5)
+						+ "/");
+				File newPath = new File(Configure.siteDirectory + "picdeleted/"
+						+ pic[index].substring(0, pic[index].length() - 5)
+						+ "/");
+				if (!newPath.exists())
+					newPath.mkdirs();
+				origin.renameTo(move);
+				File[] oldPathFiles = oldPath.listFiles();
+				if (oldPathFiles.length == 0)
+					oldPath.delete();
+			}
+		}
 		statement.execute("delete from " + Configure.table + " where id='"
 				+ id[index] + "'");
 	}
