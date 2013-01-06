@@ -1,0 +1,21 @@
+[database_address]
+211.87.219.40
+
+[webserver_address]
+211.87.219.40
+
+# Use "/" instead of "\"
+[site_directory]
+/Library/Server/Web/Data/Sites/Default/
+
+[database]
+hypercube
+
+[table]
+stu
+
+[user]
+hypercube
+
+[password]
+38Hc7ajC4K9HhfpY
