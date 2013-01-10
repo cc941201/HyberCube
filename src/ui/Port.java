@@ -44,7 +44,7 @@ class Port extends JFrame {
 		picField.setColumns(10);
 		picLabel.setLabelFor(picField);
 
-		final JButton csvButton = new JButton("浏览...");
+		final JButton csvButton = new JButton("选取...");
 		csvButton.setBounds(266, 30, 80, 29);
 		getContentPane().add(csvButton);
 		final JFileChooser csvChooser = new JFileChooser();
@@ -75,7 +75,7 @@ class Port extends JFrame {
 			}
 		});
 
-		final JButton picButton = new JButton("浏览...");
+		final JButton picButton = new JButton("选取...");
 		picButton.setBounds(266, 70, 80, 29);
 		getContentPane().add(picButton);
 		final JFileChooser picChooser = new JFileChooser();

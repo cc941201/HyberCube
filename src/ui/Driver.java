@@ -2,6 +2,7 @@ package ui;
 
 import java.awt.*;
 import javax.swing.*;
+import org.eclipse.swt.widgets.Display;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.lang.reflect.Method;
@@ -10,13 +11,12 @@ import database.Configure;
 
 public class Driver {
 	public static void main(String[] args) {
+		Display.setAppName("HyberCube");
+		final Display display = Display.getDefault();
+
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 			if (System.getProperty("os.name").startsWith("Mac OS")) {
-				// Title
-				System.setProperty(
-						"com.apple.mrj.application.apple.menu.about.name",
-						"数据库");
 				// Menu bar
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 				// Dock Icon
@@ -48,10 +48,7 @@ public class Driver {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Main frame = new Main();
-					frame.setIconImage(ImageIO.read(new File("res/icon.png")));
-					frame.nopic = ImageIO.read(new File("res/nopic.png"));
-					frame.setVisible(true);
+					new Main(display);
 				} catch (Exception e) {
 					JOptionPane.showMessageDialog(null, "初始化错误", "无法启动",
 							JOptionPane.ERROR_MESSAGE);
@@ -59,5 +56,10 @@ public class Driver {
 				}
 			}
 		});
+
+		while (true) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
 	}
 }

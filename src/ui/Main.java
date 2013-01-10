@@ -5,6 +5,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import org.eclipse.swt.widgets.Display;
+import java.io.File;
 import java.net.URL;
 import javax.imageio.ImageIO;
 
@@ -208,10 +210,10 @@ class Main extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	Main() {
+	Main(final Display display) throws Exception {
 		// Window
 		super("数据库管理");
-		addWindowListener(new java.awt.event.WindowAdapter() {
+		addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent winEvt) {
 				database.close();
 				System.exit(0);
@@ -220,6 +222,8 @@ class Main extends JFrame {
 		setSize(600, 400);
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(450, 300));
+		setIconImage(ImageIO.read(new File("res/icon.png")));
+		nopic = ImageIO.read(new File("res/nopic.png"));
 
 		// Menu
 		JMenuBar menuBar = new JMenuBar();
@@ -274,8 +278,13 @@ class Main extends JFrame {
 		});
 
 		// Buttons
-		JButton statButton = new JButton("统计");
-		// TODO statButton.addActionListener(this);
+		JButton statisticButton = new JButton("统计");
+		statisticButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				new Statistic(display, query);
+			}
+		});
 
 		final JButton filterButton = new JButton("筛选");
 		filterButton.addActionListener(new ActionListener() {
@@ -404,12 +413,14 @@ class Main extends JFrame {
 		buttonPane.add(addButton);
 		buttonPane.add(deleteButton);
 		buttonPane.add(Box.createHorizontalGlue());
-		buttonPane.add(statButton);
+		buttonPane.add(statisticButton);
 		buttonPane.add(filterButton);
 
 		Container contentPane = getContentPane();
 		contentPane.add(topPane, BorderLayout.NORTH);
 		contentPane.add(listPane, BorderLayout.CENTER);
 		contentPane.add(buttonPane, BorderLayout.PAGE_END);
+
+		setVisible(true);
 	}
 }
