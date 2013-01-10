@@ -26,12 +26,11 @@ class Statistic extends JFrame {
 			super.addNotify();
 			display.syncExec(new Runnable() {
 				public void run() {
-					Shell shell = SWT_AWT.new_Shell(display,
-							canvas);
+					Shell shell = SWT_AWT.new_Shell(display, canvas);
 					shell.setLayout(new FillLayout());
-					final Browser browser = new Browser(shell, SWT.NONE);
+					Browser browser = new Browser(shell, SWT.NONE);
 					browser.setLayoutData(BorderLayout.CENTER);
-					browser.setUrl("http://blog.csdn.net/fafey");
+					browser.setUrl("http://www.elated.com/res/File/articles/development/javascript/snazzy-animated-pie-chart-html5-jquery/");
 				}
 			});
 		}
@@ -39,7 +38,7 @@ class Statistic extends JFrame {
 
 	Statistic(Display display, String sql) {
 		super("统计");
-		this.display=display;
+		this.display = display;
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);

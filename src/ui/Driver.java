@@ -20,7 +20,6 @@ public class Driver {
 				// Menu bar
 				System.setProperty("apple.laf.useScreenMenuBar", "true");
 				// Dock Icon
-
 				Class<?> app = Class.forName("com.apple.eawt.Application");
 				Method getapp = app
 						.getMethod("getApplication", new Class<?>[0]);
