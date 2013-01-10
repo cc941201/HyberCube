@@ -1,9 +1,14 @@
+package ui;
+
 import java.awt.*;
 import javax.swing.*;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import javax.imageio.ImageIO;
+
+import database.Configure;
+import database.List;
 
 @SuppressWarnings("serial")
 class Edit extends JFrame {

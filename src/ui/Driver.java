@@ -1,8 +1,12 @@
+package ui;
+
 import java.awt.*;
 import javax.swing.*;
 import java.io.File;
 import javax.imageio.ImageIO;
 import java.lang.reflect.Method;
+
+import database.Configure;
 
 public class Driver {
 	public static void main(String[] args) {

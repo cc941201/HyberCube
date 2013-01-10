@@ -1,14 +1,16 @@
+package database;
+
 import java.io.*;
 import java.sql.*;
 import java.util.*;
 
-class Connect {
+public class Connect {
 	private Statement statement;
 	private Connection conn;
-	int totalNum;
-	String[] name, id, idNum, faculty, pic;
+	public int totalNum;
+	public String[] name, id, idNum, faculty, pic;
 
-	Connect() throws Exception {
+	public Connect() throws Exception {
 		String url = "jdbc:mysql://" + Configure.databaseAddress + "/"
 				+ Configure.database;
 		Class.forName("com.mysql.jdbc.Driver");
@@ -17,7 +19,7 @@ class Connect {
 		statement = conn.createStatement();
 	}
 
-	void close() {
+	public void close() {
 		try {
 			statement.close();
 			conn.close();
@@ -25,7 +27,7 @@ class Connect {
 		}
 	}
 
-	ResultSet get(String query) throws Exception {
+	public ResultSet get(String query) throws Exception {
 		ResultSet rs;
 		statement.setFetchSize(1001);
 		if ((query == null) || query.equals(""))
@@ -36,7 +38,7 @@ class Connect {
 		return rs;
 	}
 
-	int getCount(String query) throws Exception {
+	public int getCount(String query) throws Exception {
 		ResultSet rs;
 		if ((query == null) || query.equals(""))
 			rs = statement.executeQuery("select count(*) from "
@@ -50,7 +52,7 @@ class Connect {
 		return countNum;
 	}
 
-	void delete(int index) throws Exception {
+	public void delete(int index) throws Exception {
 		if (pic[index].length() == 32) {
 			File origin = new File(Configure.siteDirectory + "pic/"
 					+ pic[index].substring(0, pic[index].length() - 5) + "/"
@@ -78,7 +80,7 @@ class Connect {
 				+ id[index] + "'");
 	}
 
-	void setPic() throws Exception {
+	public void setPic() throws Exception {
 		FileReader fi = new FileReader("1.txt");
 		Scanner scan = new Scanner(fi);
 		String s, s1, s2;
@@ -108,7 +110,7 @@ class Connect {
 		}
 	}
 
-	String[] getEnumList(int x, int y) {
+	public String[] getEnumList(int x, int y) {
 		String[] list;
 		try {
 			ResultSet rs = statement.executeQuery("show columns from "
@@ -136,12 +138,12 @@ class Connect {
 		return list;
 	}
 
-	ResultSet getOne(String id) throws Exception {
+	public ResultSet getOne(String id) throws Exception {
 		return statement.executeQuery("select * from " + Configure.table
 				+ " where id='" + id + "'");
 	}
 
-	void getData(String query) throws Exception {
+	public void getData(String query) throws Exception {
 		totalNum = getCount(query);
 		ResultSet rs = get(query);
 		int num = (totalNum > 1000) ? 1000 : totalNum;
@@ -161,7 +163,7 @@ class Connect {
 		rs.close();
 	}
 
-	String[] getID(String query) throws Exception {
+	public String[] getID(String query) throws Exception {
 		String[] id = new String[totalNum];
 		ResultSet rs = get(query);
 		for (int i = 0; i < totalNum; i++) {

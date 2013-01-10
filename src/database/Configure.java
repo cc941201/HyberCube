@@ -1,11 +1,13 @@
+package database;
+
 import java.io.FileReader;
 import java.util.Scanner;
 
-class Configure {
-	static String line, databaseAddress, webserverAddress, siteDirectory,
-			database, table, user, password;
+public class Configure {
+	public static String line, databaseAddress, webserverAddress,
+			siteDirectory, database, table, user, password;
 
-	static void read() throws Exception {
+	public static void read() throws Exception {
 		FileReader in = new FileReader("database.conf");
 		Scanner conf = new Scanner(in);
 		while (conf.hasNextLine()) {

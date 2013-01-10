@@ -1,3 +1,5 @@
+package ui;
+
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
@@ -5,6 +7,9 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.net.URL;
 import javax.imageio.ImageIO;
+
+import database.Configure;
+import database.Connect;
 
 @SuppressWarnings("serial")
 class Main extends JFrame {
