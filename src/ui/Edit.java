@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.net.URL;
 import java.sql.ResultSet;
-import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import javax.imageio.ImageIO;
 
 import database.Configure;
@@ -191,9 +191,11 @@ class Edit extends JFrame {
 				((JTextField) field).setText(content[x][y]);
 			break;
 		case 3:
-			field = new JFormattedTextField(DateFormat.getDateInstance());
+			field = new JFormattedTextField(new SimpleDateFormat("yyyy-mm-dd"));
 			if (mode == 1)
 				((JFormattedTextField) field).setText(content[x][y]);
+			else
+				((JFormattedTextField) field).setText("0000-00-00");
 			break;
 		case 4:
 			String[] list = main.database.getEnumList(x, y);
