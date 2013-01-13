@@ -12,7 +12,7 @@ public class Connect {
 
 	public Connect() throws Exception {
 		String url = "jdbc:mysql://" + Configure.databaseAddress + "/"
-				+ Configure.database;
+				+ Configure.database + "?characterEncoding=utf8";
 		Class.forName("com.mysql.jdbc.Driver");
 		conn = DriverManager.getConnection(url, Configure.user,
 				Configure.password);
