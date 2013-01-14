@@ -88,12 +88,20 @@ class Edit extends JFrame {
 							return;
 						}
 						frame.database.insert(getInput());
-						if (picFile != null)
-							frame.database.update(id, "pic", "'"
-									+ frame.webServer.setPic(picFile) + "'");
+					} else {
+						for (int i = 0; i < 7; i++)
+							for (int j = 0; j < 7; j++) {
+								String data = getOne(i, j);
+								if (!data.equals(content[i][j]))
+									frame.database.update(id,
+											List.COLUMN_NAME[i][j], data);
+							}
 					}
-					Edit.this.dispose();
+					if (picFile != null)
+						frame.database.update(id, "pic",
+								"'" + frame.webServer.setPic(picFile) + "'");
 					frame.refresh();
+					Edit.this.dispose();
 				} catch (Exception e1) {
 				}
 			}
@@ -109,7 +117,10 @@ class Edit extends JFrame {
 		tabbedPane.addTab("其他", studyInfo());
 
 		setVisible(true);
-		idField.requestFocus();
+		if (mode == 1)
+			idField.setEnabled(false);
+		else
+			idField.requestFocus();
 	}
 
 	class NumberInputVerifier extends InputVerifier {
@@ -265,29 +276,37 @@ class Edit extends JFrame {
 		switch (List.COLUMN_TYPE[x][y]) {
 		case 1:
 			field = new JTextField();
-			if (mode == 1)
+			if (mode == 1) {
 				((JTextField) field).setText(content[x][y]);
+				content[x][y] = "'" + content[x][y] + "'";
+			}
 			break;
 		case 2:
 			field = new JTextField();
 			field.setInputVerifier(new NumberInputVerifier());
 			if (mode == 1)
-				((JTextField) field).setText(content[x][y]);
+				if (content[x][y] == null)
+					content[x][y] = "null";
+				else
+					((JTextField) field).setText(content[x][y]);
 			break;
 		case 3:
 			field = new JFormattedTextField(new SimpleDateFormat("yyyy-mm-dd"));
-			if ((mode == 1) && (content[x][y] != null))
+			if (mode == 1) {
+				if (content[x][y] == null)
+					content[x][y] = "0000-00-00";
 				((JFormattedTextField) field).setText(content[x][y]);
-			else
-				((JFormattedTextField) field).setText("0000-00-00");
+				content[x][y] = "'" + content[x][y] + "'";
+			}
 			break;
 		case 4:
 			String[] list = main.database.getEnumList(x, y);
 			field = new JComboBox(list);
 			if (mode == 1)
-				for (int i = 1; i < list.length; i++)
+				for (int i = 0; i < list.length; i++)
 					if (content[x][y].equals(list[i])) {
 						((JComboBox) field).setSelectedIndex(i);
+						content[x][y] = String.valueOf(i);
 						break;
 					}
 		}
@@ -316,8 +335,7 @@ class Edit extends JFrame {
 	private String getOne(int x, int y) {
 		String data;
 		if (List.COLUMN_TYPE[x][y] == 4)
-			data = "'" + ((JComboBox) field[x][y]).getSelectedItem() + "'";// String.valueOf(((JComboBox)
-																			// field[x][y]).getSelectedIndex());
+			data = String.valueOf(((JComboBox) field[x][y]).getSelectedIndex());
 		else if (List.COLUMN_TYPE[x][y] == 2) {
 			data = ((JTextField) field[x][y]).getText();
 			if (data.equals(""))
