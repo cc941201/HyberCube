@@ -1,7 +1,10 @@
 package ui;
 
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
@@ -21,38 +24,12 @@ class Edit extends JFrame {
 	private String id;
 	private ResultSet rs;
 	private String[][] content;
-
-	class NumberInputVerifier extends InputVerifier {
-		@Override
-		public boolean verify(JComponent field) {
-			boolean flag = false;
-			if (field instanceof JTextField) {
-				try {
-					Long.parseLong(((JTextField) field).getText());
-					flag = true;
-				} catch (Exception e) {
-				}
-			}
-			return flag;
-		}
-	}
-
-	class NullInputVerifier extends InputVerifier {
-		@Override
-		public boolean verify(JComponent field) {
-			boolean flag = false;
-			if (field instanceof JTextField) {
-				if (((JTextField) field).getText().length() > 0)
-					flag = true;
-			}
-			return flag;
-		}
-	}
+	private File picFile;
 
 	/**
 	 * mode 0 = add, mode 1 = edit
 	 */
-	public Edit(Main frame, int mode, String id) {
+	public Edit(final Main frame, final int mode, final String id) {
 		super(NAME[mode] + "资料");
 		main = frame;
 		this.mode = mode;
@@ -94,6 +71,35 @@ class Edit extends JFrame {
 		buttonPane.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 		buttonPane.add(button);
 		getRootPane().setDefaultButton(button);
+		button.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					if (mode == 0) {
+						String id = idField.getText();
+						if (id.equals("")) {
+							JOptionPane.showMessageDialog(null, "学号必填", "请注意",
+									JOptionPane.INFORMATION_MESSAGE);
+							return;
+						}
+						if (frame.database.exist(id)) {
+							JOptionPane.showMessageDialog(null, "学号重复", "请注意",
+									JOptionPane.INFORMATION_MESSAGE);
+							return;
+						}
+						frame.database.insert(getInput());
+						if (picFile != null)
+							frame.database.update(id, "pic", "'"
+									+ frame.webServer.setPic(picFile) + "'");
+					}
+					Edit.this.dispose();
+					frame.refresh();
+				} catch (Exception e1) {
+				}
+			}
+		});
+		if (!frame.modify)
+			button.setEnabled(false);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(tabbedPane, BorderLayout.CENTER);
@@ -106,8 +112,35 @@ class Edit extends JFrame {
 		idField.requestFocus();
 	}
 
+	class NumberInputVerifier extends InputVerifier {
+		@Override
+		public boolean verify(JComponent field) {
+			boolean flag = false;
+			if (field instanceof JTextField) {
+				try {
+					Long.parseLong(((JTextField) field).getText());
+					flag = true;
+				} catch (Exception e) {
+				}
+			}
+			return flag;
+		}
+	}
+
+	class NullInputVerifier extends InputVerifier {
+		@Override
+		public boolean verify(JComponent field) {
+			boolean flag = false;
+			if (field instanceof JTextField) {
+				if (((JTextField) field).getText().length() > 0)
+					flag = true;
+			}
+			return flag;
+		}
+	}
+
 	private JPanel basicInfo() {
-		JPanel basicInfo = new JPanel(true);
+		final JPanel basicInfo = new JPanel(true);
 		basicInfo.setOpaque(false);
 		basicInfo.setLayout(null);
 
@@ -116,9 +149,62 @@ class Edit extends JFrame {
 			basicInfo.add(pic);
 		} catch (Exception e) {
 		}
-		JLabel picback = new JLabel(new ImageIcon("res/addpic.png"));
+		final JLabel picback = new JLabel(new ImageIcon("res/addpic.png"));
 		picback.setBounds(40, 10, 158, 208);
 		basicInfo.add(picback);
+		picback.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				JFileChooser picChooser = new JFileChooser();
+				picChooser.setFileFilter(new FileFilter() {
+					@Override
+					public boolean accept(File file) {
+						boolean flag = false;
+						if (file.isDirectory()
+								|| file.toString().endsWith(".jpg"))
+							flag = true;
+						return flag;
+					}
+
+					@Override
+					public String getDescription() {
+						return "JPG 图像文件";
+					}
+				});
+				int result = picChooser.showOpenDialog(Edit.this);
+				if (result == JFileChooser.APPROVE_OPTION) {
+					picFile = picChooser.getSelectedFile();
+					try {
+						if (pic != null)
+							basicInfo.remove(pic);
+						basicInfo.remove(picback);
+						pic = new JLabel(new ImageIcon((ImageIO.read(picFile))
+								.getScaledInstance(150, 200,
+										java.awt.Image.SCALE_SMOOTH)));
+						pic.setBounds(40, 10, 150, 200);
+						basicInfo.add(pic);
+						basicInfo.add(picback);
+					} catch (Exception e1) {
+					}
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+		});
 
 		// id
 		idField = new JTextField();
@@ -145,7 +231,7 @@ class Edit extends JFrame {
 
 		for (int i = 1; i < 3; i++)
 			for (int j = 0; j < 7; j++)
-				field[0][j] = field(contactInfo, i, j);
+				field[i][j] = field(contactInfo, i, j);
 
 		return contactInfo;
 	}
@@ -157,7 +243,7 @@ class Edit extends JFrame {
 
 		for (int i = 3; i < 5; i++)
 			for (int j = 0; j < 7; j++)
-				field[0][j] = field(teachInfo, i, j);
+				field[i][j] = field(teachInfo, i, j);
 
 		return teachInfo;
 	}
@@ -169,13 +255,11 @@ class Edit extends JFrame {
 
 		for (int i = 5; i < 7; i++)
 			for (int j = 0; j < 7; j++)
-				field[0][j] = field(studyInfo, i, j);
+				field[i][j] = field(studyInfo, i, j);
 
 		return studyInfo;
 	}
 
-	// type 1 = TextField, type 2 = NumberField, type 3 = DateField, type 4 =
-	// ComboBox
 	JComponent field(JPanel pane, int x, int y) {
 		JComponent field = null;
 		switch (List.COLUMN_TYPE[x][y]) {
@@ -192,7 +276,7 @@ class Edit extends JFrame {
 			break;
 		case 3:
 			field = new JFormattedTextField(new SimpleDateFormat("yyyy-mm-dd"));
-			if (mode == 1)
+			if ((mode == 1) && (content[x][y] != null))
 				((JFormattedTextField) field).setText(content[x][y]);
 			else
 				((JFormattedTextField) field).setText("0000-00-00");
@@ -219,5 +303,27 @@ class Edit extends JFrame {
 		pane.add(field);
 		pane.add(label);
 		return field;
+	}
+
+	private String getInput() {
+		String data = "'" + idField.getText() + "'";
+		for (int i = 0; i < 7; i++)
+			for (int j = 0; j < 7; j++)
+				data += "," + getOne(i, j);
+		return data;
+	}
+
+	private String getOne(int x, int y) {
+		String data;
+		if (List.COLUMN_TYPE[x][y] == 4)
+			data = "'" + ((JComboBox) field[x][y]).getSelectedItem() + "'";// String.valueOf(((JComboBox)
+																			// field[x][y]).getSelectedIndex());
+		else if (List.COLUMN_TYPE[x][y] == 2) {
+			data = ((JTextField) field[x][y]).getText();
+			if (data.equals(""))
+				data = "null";
+		} else
+			data = "'" + ((JTextField) field[x][y]).getText() + "'";
+		return data;
 	}
 }

@@ -6,19 +6,22 @@ import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import org.eclipse.swt.widgets.Display;
+import javax.imageio.ImageIO;
 import java.io.File;
 import java.net.URL;
-import javax.imageio.ImageIO;
 
 import database.Configure;
 import database.Connect;
+import server.Interface;
 
 @SuppressWarnings("serial")
 class Main extends JFrame {
-	private final Dimension modeButton = new Dimension(30, 30);
-	private final Dimension dataButton = new Dimension(25, 25);
-	private final Color chosen = new Color(0x2C5DCD);
+	private static final Dimension modeButton = new Dimension(30, 30);
+	private static final Dimension dataButton = new Dimension(25, 25);
+	private static final Color chosen = new Color(0x2C5DCD);
+	boolean modify;
 	Connect database;
+	Interface webServer;
 	private boolean[] buffered = new boolean[1000];
 	private BufferedImage[] bufferedImage = new BufferedImage[1000];
 	BufferedImage nopic;
@@ -210,7 +213,7 @@ class Main extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	Main(final Display display) throws Exception {
+	Main(final Display display, Interface webServer, boolean modify) {
 		// Window
 		super("数据库管理");
 		addWindowListener(new WindowAdapter() {
@@ -222,8 +225,16 @@ class Main extends JFrame {
 		setSize(650, 400);
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(450, 300));
-		setIconImage(ImageIO.read(new File("res/icon.png")));
-		nopic = ImageIO.read(new File("res/nopic.png"));
+		try {
+			setIconImage(ImageIO.read(new File("res/icon.png")));
+			nopic = ImageIO.read(new File("res/nopic.png"));
+		} catch (Exception e) {
+		}
+		this.webServer = webServer;
+		this.modify = modify;
+		if (!modify)
+			JOptionPane.showMessageDialog(this, "如果需要添加、删除信息，\n请启动服务器端。", "提示",
+					JOptionPane.INFORMATION_MESSAGE);
 
 		// Menu
 		JMenuBar menuBar = new JMenuBar();
@@ -390,6 +401,13 @@ class Main extends JFrame {
 			System.exit(-1);
 		}
 		updateLabel();
+
+		// Set modifiable
+		if (!modify) {
+			addButton.setEnabled(false);
+			deleteButton.setEnabled(false);
+			importData.setEnabled(false);
+		}
 
 		// Lay out
 		listPane = new JPanel();

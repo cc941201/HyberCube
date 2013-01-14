@@ -23,8 +23,11 @@ public class List {
 					"exam", "cardnum" },
 			{ "married", "oversea", "hero", "health", "talent", "economy",
 					"moneysource" } };
+	public final static String COLUMN_STRING = "id,name,engname,sex,birthday,country,nation,identity,idtype,idnum,home,homeadd,homepost,homephone,telephone,hometown,address,postcode,mobile,qq,msn,email,entrydate,faculty,type,profession,grade,class,region,title,direction,techmethod,studymethod,studytype,background,bachelor,language,languageskill,roll,field,studyplace,exam,cardnum,married,oversea,hero,health,talent,economy,moneysource";
+	// type 1 = TextField, type 2 = NumberField
+	// type 3 = DateField, type 4 = ComboBox
 	public final static int[][] COLUMN_TYPE = { { 1, 1, 4, 3, 1, 4, 4 },
-			{ 4, 1, 1, 1, 2, 1, 1 }, { 1, 1, 2, 2, 2, 1, 1 },
+			{ 4, 1, 1, 1, 2, 1, 1 }, { 1, 1, 2, 1, 2, 1, 1 },
 			{ 3, 4, 4, 4, 2, 1, 4 }, { 4, 1, 4, 4, 4, 4, 4 },
 			{ 1, 1, 4, 4, 4, 2, 2 }, { 4, 4, 4, 1, 1, 1, 1 } };
 }

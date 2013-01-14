@@ -82,7 +82,7 @@ class Port extends JFrame {
 		picChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		picButton.addActionListener(new ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 				int result;
 				if (mode == 0)
 					result = picChooser.showOpenDialog(Port.this);
