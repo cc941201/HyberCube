@@ -219,7 +219,7 @@ class Main extends JFrame {
 				System.exit(0);
 			}
 		});
-		setSize(600, 400);
+		setSize(650, 400);
 		setLocationRelativeTo(null);
 		setMinimumSize(new Dimension(450, 300));
 		setIconImage(ImageIO.read(new File("res/icon.png")));
