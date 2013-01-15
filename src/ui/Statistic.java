@@ -22,6 +22,7 @@ class Statistic extends JFrame {
 			add(canvas, BorderLayout.CENTER);
 		}
 
+		@Override
 		public void addNotify() {
 			super.addNotify();
 			display.syncExec(new Runnable() {
@@ -30,7 +31,7 @@ class Statistic extends JFrame {
 					shell.setLayout(new FillLayout());
 					Browser browser = new Browser(shell, SWT.NONE);
 					browser.setLayoutData(BorderLayout.CENTER);
-					browser.setUrl("http://www.elated.com/res/File/articles/development/javascript/snazzy-animated-pie-chart-html5-jquery/");
+					browser.setUrl("file:///Users/cc941201/Documents/HyberCube/chart/index.html");
 				}
 			});
 		}
