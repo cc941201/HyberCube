@@ -4,6 +4,14 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.*;
+import java.sql.ResultSet;
+
+import database.Configure;
+import database.List;
 
 @SuppressWarnings("serial")
 class Port extends JFrame {
@@ -114,9 +122,54 @@ class Port extends JFrame {
 				new Thread() {
 					@Override
 					public void run() {
-						if (mode == 1) {
+						if (mode == 0) {
 							progressBar.setValue(50);
 							// TODO
+						} else {
+							try {
+								for (int i = 0; i < id.length; i++) {
+									ResultSet rs = frame.database.getOne(id[i]);
+									rs.next();
+									String[][] content = new String[7][7];
+									for (int x = 0; x < 7; x++)
+										for (int y = 0; y < 7; y++)
+											content[x][y] = rs
+													.getString(List.COLUMN_NAME[x][y]);
+									String picAddress = rs.getString("pic");
+									rs.close();
+									ReadableByteChannel url = Channels
+											.newChannel(new URL(
+													"http://"
+															+ Configure.webserverAddress
+															+ "/pic/"
+															+ picAddress
+																	.substring(
+																			0,
+																			picAddress
+																					.length() - 5)
+															+ "/"
+															+ picAddress
+																	.substring(picAddress
+																			.length() - 5)
+															+ ".jpg")
+													.openStream());
+									FileOutputStream outStream = new FileOutputStream(
+											"123.txt");
+									FileChannel out = outStream.getChannel();
+									ByteBuffer buffer = ByteBuffer
+											.allocate(10000);
+									while (url.read(buffer) != -1) {
+										buffer.flip();
+										out.write(buffer);
+										buffer.clear();
+									}
+									out.close();
+									outStream.close();
+									url.close();
+								}
+							} catch (Exception e) {
+
+							}
 						}
 						finish();
 					}

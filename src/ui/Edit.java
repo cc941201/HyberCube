@@ -22,9 +22,9 @@ class Edit extends JFrame {
 	private JComponent[][] field = new JComponent[7][7];
 	private JLabel pic;
 	private String id, picAddress;
-	private ResultSet rs;
 	private String[][] content;
 	private File picFile;
+	private boolean modify;
 
 	/**
 	 * mode 0 = add, mode 1 = edit
@@ -37,11 +37,12 @@ class Edit extends JFrame {
 		setSize(500, 400);
 		setLocationRelativeTo(frame);
 		setResizable(false);
+		modify = frame.modify;
 
 		// Get all info
 		if (mode == 1) {
 			try {
-				rs = frame.database.getOne(id);
+				ResultSet rs = frame.database.getOne(id);
 				rs.next();
 				content = new String[7][7];
 				for (int i = 0; i < 7; i++)
@@ -109,7 +110,7 @@ class Edit extends JFrame {
 				}
 			}
 		});
-		if (!frame.modify)
+		if (!modify)
 			button.setEnabled(false);
 
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
@@ -169,36 +170,38 @@ class Edit extends JFrame {
 		picback.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				JFileChooser picChooser = new JFileChooser();
-				picChooser.setFileFilter(new FileFilter() {
-					@Override
-					public boolean accept(File file) {
-						boolean flag = false;
-						if (file.isDirectory()
-								|| file.toString().endsWith(".jpg"))
-							flag = true;
-						return flag;
-					}
+				if (modify) {
+					JFileChooser picChooser = new JFileChooser();
+					picChooser.setFileFilter(new FileFilter() {
+						@Override
+						public boolean accept(File file) {
+							boolean flag = false;
+							if (file.isDirectory()
+									|| file.toString().endsWith(".jpg"))
+								flag = true;
+							return flag;
+						}
 
-					@Override
-					public String getDescription() {
-						return "JPG 图像文件";
-					}
-				});
-				int result = picChooser.showOpenDialog(Edit.this);
-				if (result == JFileChooser.APPROVE_OPTION) {
-					picFile = picChooser.getSelectedFile();
-					try {
-						if (pic != null)
-							basicInfo.remove(pic);
-						basicInfo.remove(picback);
-						pic = new JLabel(new ImageIcon((ImageIO.read(picFile))
-								.getScaledInstance(150, 200,
-										java.awt.Image.SCALE_SMOOTH)));
-						pic.setBounds(40, 10, 150, 200);
-						basicInfo.add(pic);
-						basicInfo.add(picback);
-					} catch (Exception e1) {
+						@Override
+						public String getDescription() {
+							return "JPG 图像文件";
+						}
+					});
+					int result = picChooser.showOpenDialog(Edit.this);
+					if (result == JFileChooser.APPROVE_OPTION) {
+						picFile = picChooser.getSelectedFile();
+						try {
+							if (pic != null)
+								basicInfo.remove(pic);
+							basicInfo.remove(picback);
+							pic = new JLabel(new ImageIcon((ImageIO
+									.read(picFile)).getScaledInstance(150, 200,
+									java.awt.Image.SCALE_SMOOTH)));
+							pic.setBounds(40, 10, 150, 200);
+							basicInfo.add(pic);
+							basicInfo.add(picback);
+						} catch (Exception e1) {
+						}
 					}
 				}
 			}

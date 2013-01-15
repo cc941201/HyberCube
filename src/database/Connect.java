@@ -32,10 +32,13 @@ public class Connect {
 		ResultSet rs;
 		statement.setFetchSize(1001);
 		if ((query == null) || query.equals(""))
-			rs = statement.executeQuery("select * from " + Configure.table);
+			rs = statement
+					.executeQuery("select name,id,idnum,faculty,pic from "
+							+ Configure.table);
 		else
-			rs = statement.executeQuery("select * from " + Configure.table
-					+ " where " + query);
+			rs = statement
+					.executeQuery("select name,id,idnum,faculty,pic from "
+							+ Configure.table + " where " + query);
 		return rs;
 	}
 
