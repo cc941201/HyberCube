@@ -51,7 +51,10 @@ class Server extends UnicastRemoteObject implements Interface {
 			outStream.close();
 			inStream.close();
 			frame.add("Successfully added " + pic.getName(), true);
-			frame.add(size + " bytes", true);
+			if (size > 1)
+				frame.add(size + " Bytes", true);
+			else
+				frame.add(size + " Byte", true);
 			frame.add("", true);
 		} catch (Exception e) {
 			frame.add("Failed adding " + pic.getName(), false);
