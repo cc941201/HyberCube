@@ -3,12 +3,12 @@ package ui;
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.event.*;
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
 import java.sql.ResultSet;
+import java.util.Scanner;
 
 import database.Configure;
 import database.List;
@@ -16,21 +16,128 @@ import database.List;
 @SuppressWarnings("serial")
 class Port extends JFrame {
 	private static final String[] NAME = { "导入", "导出" };
+	private Main frame;
+	private String[] id;
 	private int mode;
+	private JProgressBar progressBar;
 	private JTextField csvField, picField;
+	private File csvFile, picDirectory;
 
-	Port(final Main frame, final int mode, final String[] id) {
-		super(NAME[mode] + "数据");
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent winEvt) {
-				if (mode == 0)
-					frame.refresh();
+	private class Import extends Thread {
+		@Override
+		public void run() {
+			try {
+				Scanner csvScan = new Scanner(csvFile);
+				int count = 0;
+				while (csvScan.hasNext()) {
+					csvScan.nextLine();
+					count++;
+				}
+				csvScan.close();
+				csvScan = new Scanner(csvFile);
+				for (int i = 0; i < count; i++) {
+					progressBar.setValue(i * 100 / count);
+					String data = csvScan.nextLine();
+					frame.database.insert(data);
+					String id = data.substring(1, data.indexOf(',') - 1);
+					File picFile = new File(picDirectory.getPath() + "/" + id
+							+ ".jpg");
+					if (picFile.exists())
+						frame.database.update(id, "pic",
+								"'" + frame.webServer.setPic(picFile) + "'");
+				}
+				csvScan.close();
+				frame.refresh();
+				finish();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(Port.this, "导入失败！", "错误",
+						JOptionPane.ERROR_MESSAGE);
+				dispose();
 			}
-		});
+		}
+	}
+
+	private class Export extends Thread {
+		@Override
+		public void run() {
+			try {
+				if (!picDirectory.exists())
+					picDirectory.mkdirs();
+				File csvPath = csvFile.getParentFile();
+				if ((csvPath != null) && !csvPath.exists())
+					csvPath.mkdirs();
+				PrintWriter csvWrite = new PrintWriter(csvFile);
+				for (int i = 0; i < id.length; i++) {
+					progressBar.setValue(i * 100 / id.length);
+					csvWrite.print("'" + id[i] + "'");
+					ResultSet rs = frame.database.getOne(id[i]);
+					rs.next();
+					for (int x = 0; x < 7; x++)
+						for (int y = 0; y < 7; y++) {
+							String data = rs.getString(List.COLUMN_NAME[x][y]);
+							switch (List.COLUMN_TYPE[x][y]) {
+							case 1:
+								data = "'" + data + "'";
+								break;
+							case 2:
+								if (data == null)
+									data = "null";
+								break;
+							case 3:
+								if (data == null)
+									data = "0000-00-00";
+								data = "'" + data + "'";
+								break;
+							case 4:
+								data = "'" + data + "'";
+							}
+							csvWrite.print("," + data);
+						}
+					csvWrite.println();
+					String picAddress = rs.getString("pic");
+					rs.close();
+					if (picAddress.length() == 32) {
+						ReadableByteChannel url = Channels.newChannel(new URL(
+								"http://"
+										+ Configure.webserverAddress
+										+ "/pic/"
+										+ picAddress.substring(0,
+												picAddress.length() - 5)
+										+ "/"
+										+ picAddress.substring(picAddress
+												.length() - 5) + ".jpg")
+								.openStream());
+						FileOutputStream outStream = new FileOutputStream(
+								picDirectory.getPath() + "/" + id[i] + ".jpg");
+						FileChannel out = outStream.getChannel();
+						ByteBuffer buffer = ByteBuffer.allocate(10000);
+						while (url.read(buffer) != -1) {
+							buffer.flip();
+							out.write(buffer);
+							buffer.clear();
+						}
+						out.close();
+						outStream.close();
+						url.close();
+					}
+				}
+				csvWrite.close();
+				finish();
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(Port.this, "导出失败！", "错误",
+						JOptionPane.ERROR_MESSAGE);
+				dispose();
+			}
+		}
+	}
+
+	Port(Main frame, final int mode, String[] id) {
+		super(NAME[mode] + "数据");
 		setSize(370, 200);
 		setLocationRelativeTo(frame);
 		setResizable(false);
+		this.frame = frame;
+		this.id = id;
 		this.mode = mode;
 		getContentPane().setLayout(null);
 
@@ -103,7 +210,7 @@ class Port extends JFrame {
 			}
 		});
 
-		final JProgressBar progressBar = new JProgressBar();
+		progressBar = new JProgressBar();
 		progressBar.setBounds(30, 130, 160, 20);
 		getContentPane().add(progressBar);
 
@@ -114,66 +221,32 @@ class Port extends JFrame {
 		button.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				csvFile = new File(csvField.getText());
+				picDirectory = new File(picField.getText());
+				if (mode == 0) {
+					if (!csvFile.exists() || csvFile.isDirectory()
+							|| !picDirectory.isDirectory()) {
+						JOptionPane.showMessageDialog(Port.this, "请选择正确的文件",
+								"注意", JOptionPane.INFORMATION_MESSAGE);
+						return;
+					}
+				} else if (csvFile.exists()
+						|| (picDirectory.exists() && !picDirectory
+								.isDirectory())
+						|| csvFile.getPath().equals(picDirectory.getPath())) {
+					JOptionPane.showMessageDialog(Port.this, "文件已存在", "注意",
+							JOptionPane.INFORMATION_MESSAGE);
+					return;
+				}
 				button.setEnabled(false);
 				csvButton.setEnabled(false);
 				picButton.setEnabled(false);
 				csvField.setEnabled(false);
 				picField.setEnabled(false);
-				new Thread() {
-					@Override
-					public void run() {
-						if (mode == 0) {
-							progressBar.setValue(50);
-							// TODO
-						} else {
-							try {
-								for (int i = 0; i < id.length; i++) {
-									ResultSet rs = frame.database.getOne(id[i]);
-									rs.next();
-									String[][] content = new String[7][7];
-									for (int x = 0; x < 7; x++)
-										for (int y = 0; y < 7; y++)
-											content[x][y] = rs
-													.getString(List.COLUMN_NAME[x][y]);
-									String picAddress = rs.getString("pic");
-									rs.close();
-									ReadableByteChannel url = Channels
-											.newChannel(new URL(
-													"http://"
-															+ Configure.webserverAddress
-															+ "/pic/"
-															+ picAddress
-																	.substring(
-																			0,
-																			picAddress
-																					.length() - 5)
-															+ "/"
-															+ picAddress
-																	.substring(picAddress
-																			.length() - 5)
-															+ ".jpg")
-													.openStream());
-									FileOutputStream outStream = new FileOutputStream(
-											"123.txt");
-									FileChannel out = outStream.getChannel();
-									ByteBuffer buffer = ByteBuffer
-											.allocate(10000);
-									while (url.read(buffer) != -1) {
-										buffer.flip();
-										out.write(buffer);
-										buffer.clear();
-									}
-									out.close();
-									outStream.close();
-									url.close();
-								}
-							} catch (Exception e) {
-
-							}
-						}
-						finish();
-					}
-				}.start();
+				if (mode == 0)
+					new Import().start();
+				else
+					new Export().start();
 			}
 		});
 
@@ -181,7 +254,7 @@ class Port extends JFrame {
 	}
 
 	void finish() {
-		JOptionPane.showMessageDialog(Port.this, NAME[mode] + "完成！", "成功",
+		JOptionPane.showMessageDialog(this, NAME[mode] + "完成！", "成功",
 				JOptionPane.INFORMATION_MESSAGE);
 		dispose();
 	}
