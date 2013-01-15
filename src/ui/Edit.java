@@ -21,7 +21,7 @@ class Edit extends JFrame {
 	private int mode;
 	private JComponent[][] field = new JComponent[7][7];
 	private JLabel pic;
-	private String id;
+	private String id, picAddress;
 	private ResultSet rs;
 	private String[][] content;
 	private File picFile;
@@ -29,7 +29,7 @@ class Edit extends JFrame {
 	/**
 	 * mode 0 = add, mode 1 = edit
 	 */
-	public Edit(final Main frame, final int mode, final String id) {
+	public Edit(final Main frame, final int mode, String id) {
 		super(NAME[mode] + "资料");
 		main = frame;
 		this.mode = mode;
@@ -47,7 +47,7 @@ class Edit extends JFrame {
 				for (int i = 0; i < 7; i++)
 					for (int j = 0; j < 7; j++)
 						content[i][j] = rs.getString(List.COLUMN_NAME[i][j]);
-				String picAddress = rs.getString("pic");
+				picAddress = rs.getString("pic");
 				rs.close();
 				URL picURL = new URL("http://" + Configure.webserverAddress
 						+ "/pic/"
@@ -75,8 +75,8 @@ class Edit extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				try {
+					String id = idField.getText();
 					if (mode == 0) {
-						String id = idField.getText();
 						if (id.equals("")) {
 							JOptionPane.showMessageDialog(null, "学号必填", "请注意",
 									JOptionPane.INFORMATION_MESSAGE);
@@ -97,9 +97,12 @@ class Edit extends JFrame {
 											List.COLUMN_NAME[i][j], data);
 							}
 					}
-					if (picFile != null)
+					if (picFile != null) {
+						if ((picAddress != null) && (picAddress.length() == 32))
+							frame.webServer.deletePic(picAddress);
 						frame.database.update(id, "pic",
 								"'" + frame.webServer.setPic(picFile) + "'");
+					}
 					frame.refresh();
 					Edit.this.dispose();
 				} catch (Exception e1) {

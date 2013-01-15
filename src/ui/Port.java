@@ -8,6 +8,7 @@ import java.io.File;
 @SuppressWarnings("serial")
 class Port extends JFrame {
 	private static final String[] NAME = { "导入", "导出" };
+	private int mode;
 	private JTextField csvField, picField;
 
 	Port(final Main frame, final int mode, final String[] id) {
@@ -22,6 +23,7 @@ class Port extends JFrame {
 		setSize(370, 200);
 		setLocationRelativeTo(frame);
 		setResizable(false);
+		this.mode = mode;
 		getContentPane().setLayout(null);
 
 		JLabel csvLabel = new JLabel("CSV文件：");
@@ -109,14 +111,25 @@ class Port extends JFrame {
 				picButton.setEnabled(false);
 				csvField.setEnabled(false);
 				picField.setEnabled(false);
-				progressBar.setValue(50);
-				JOptionPane.showMessageDialog(Port.this, NAME[mode] + "完成！",
-						"成功", JOptionPane.INFORMATION_MESSAGE);
-				dispose();
-				// TODO
+				new Thread() {
+					@Override
+					public void run() {
+						if (mode == 1) {
+							progressBar.setValue(50);
+							// TODO
+						}
+						finish();
+					}
+				}.start();
 			}
 		});
 
 		setVisible(true);
+	}
+
+	void finish() {
+		JOptionPane.showMessageDialog(Port.this, NAME[mode] + "完成！", "成功",
+				JOptionPane.INFORMATION_MESSAGE);
+		dispose();
 	}
 }

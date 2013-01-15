@@ -10,6 +10,7 @@ import database.Configure;
 @SuppressWarnings("serial")
 public class Main extends JFrame {
 	private final static int LINE = 14, WIDTH = 29;
+	private static final int PORT = 1099;
 	private Registry registry;
 	private JLabel statusLabel;
 	private String[] statusList = new String[LINE];
@@ -48,10 +49,10 @@ public class Main extends JFrame {
 		try {
 			Configure.read();
 			Interface server = new Server(this);
-			registry = LocateRegistry.createRegistry(1099);
+			registry = LocateRegistry.createRegistry(PORT);
 			registry.rebind("hybercube", server);
 			add("Server is up and running.", true);
-			add("Listening on 1099.", true);
+			add("Listening on " + PORT + ".", true);
 			add("", true);
 		} catch (Exception e) {
 			add("Error starting server!", false);

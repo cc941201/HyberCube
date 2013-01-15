@@ -213,7 +213,7 @@ class Main extends JFrame {
 	/**
 	 * Create the frame.
 	 */
-	Main(final Display display, Interface webServer, boolean modify) {
+	Main(final Display display, final Interface webServer, boolean modify) {
 		// Window
 		super("数据库管理");
 		addWindowListener(new WindowAdapter() {
@@ -332,8 +332,11 @@ class Main extends JFrame {
 				else if (JOptionPane.showConfirmDialog(Main.this, "是否确认删除？",
 						"确认", JOptionPane.YES_NO_OPTION) == 0)
 					try {
-						for (int i = 0; i < selected.length; i++)
-							database.delete(selected[i]);
+						for (int i = 0; i < selected.length; i++) {
+							if (database.pic[selected[i]].length() == 32)
+								webServer.deletePic(database.pic[selected[i]]);
+							database.delete(database.id[selected[i]]);
+						}
 						refresh();
 					} catch (Exception e1) {
 						JOptionPane.showMessageDialog(Main.this, "删除失败", "错误",

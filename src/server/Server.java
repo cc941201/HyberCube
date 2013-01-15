@@ -16,6 +16,12 @@ class Server extends UnicastRemoteObject implements Interface {
 	}
 
 	@Override
+	public void connect() throws Exception {
+		frame.add("A user has connected.", true);
+		frame.add("", true);
+	}
+
+	@Override
 	public String setPic(File pic) throws Exception {
 		Random rand = new Random();
 		File pic1;
@@ -56,8 +62,43 @@ class Server extends UnicastRemoteObject implements Interface {
 	}
 
 	@Override
-	public void connect() throws Exception {
-		frame.add("A user has connected.", true);
-		frame.add("", true);
+	public void deletePic(String name) throws Exception {
+		try {
+			File origin = new File(Configure.siteDirectory + "pic/"
+					+ name.substring(0, name.length() - 5) + "/"
+					+ name.substring(name.length() - 5) + ".jpg");
+			if (origin.exists()) {
+				File move = new File(Configure.siteDirectory + "picdeleted/"
+						+ name.substring(0, name.length() - 5) + "/"
+						+ name.substring(name.length() - 5) + ".jpg");
+				File oldPath = new File(Configure.siteDirectory + "pic/"
+						+ name.substring(0, name.length() - 5) + "/");
+				File newPath = new File(Configure.siteDirectory + "picdeleted/"
+						+ name.substring(0, name.length() - 5) + "/");
+				if (!newPath.exists())
+					newPath.mkdirs();
+				int i = 1;
+				while (move.exists()) {
+					move = new File(Configure.siteDirectory + "picdeleted/"
+							+ name.substring(0, name.length() - 5) + "/"
+							+ name.substring(name.length() - 5) + "(" + i
+							+ ").jpg");
+					i++;
+				}
+				origin.renameTo(move);
+				File[] oldPathFiles = oldPath.listFiles();
+				if (oldPathFiles.length == 0)
+					oldPath.delete();
+				frame.add(
+						"Successfully deleted "
+								+ name.substring(name.length() - 5) + ".jpg",
+						true);
+				frame.add("", true);
+			}
+		} catch (Exception e) {
+			frame.add("Failed deleting " + name.substring(name.length() - 5)
+					+ ".jpg", false);
+			frame.add("", false);
+		}
 	}
 }
