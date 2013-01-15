@@ -52,9 +52,9 @@ class Main extends JFrame {
 						+ database.pic[index].substring(database.pic[index]
 								.length() - 5) + ".jpg");
 				BufferedImage input = ImageIO.read(picURL);
-				Image scaledImage = input.getScaledInstance(75, 100,
+				Image scaledImage = input.getScaledInstance(150, 200,
 						Image.SCALE_DEFAULT);
-				bufferedImage[index] = new BufferedImage(75, 100,
+				bufferedImage[index] = new BufferedImage(150, 200,
 						BufferedImage.TYPE_INT_RGB);
 				bufferedImage[index].createGraphics().drawImage(scaledImage, 0,
 						0, null);
@@ -79,21 +79,23 @@ class Main extends JFrame {
 			return this;
 		}
 
+		@Override
 		public void paintComponent(Graphics g) {
 			if (isSelected) {
 				g.setColor(chosen);
 				g.fillRect(0, 0, 200, 100);
 				g.setColor(Color.white);
 			}
-			g.drawImage(nopic, 0, 0, this);
+			g.drawImage(nopic, 0, 0, 75, 100, this);
 			if (database.pic[index].length() == 32)
-				g.drawImage(paintPic(index), 0, 0, this);
+				g.drawImage(paintPic(index), 0, 0, 75, 100, this);
 			g.drawString(database.name[index], 80, 20);
 			g.drawString(database.id[index], 80, 40);
 			g.drawString(database.faculty[index], 80, 60);
 			g.drawString("山东大学", 80, 80);
 		}
 
+		@Override
 		public Dimension getPreferredSize() {
 			return new Dimension(200, 100);
 		}
@@ -114,18 +116,20 @@ class Main extends JFrame {
 			return this;
 		}
 
+		@Override
 		public void paintComponent(Graphics g) {
 			if (isSelected) {
 				g.setColor(chosen);
 				g.fillRect(0, 0, 75, 120);
 				g.setColor(Color.white);
 			}
-			g.drawImage(nopic, 0, 0, this);
+			g.drawImage(nopic, 0, 0, 75, 100, this);
 			if (database.pic[index].length() == 32)
-				g.drawImage(paintPic(index), 0, 0, this);
+				g.drawImage(paintPic(index), 0, 0, 75, 100, this);
 			g.drawString(database.name[index], 0, 115);
 		}
 
+		@Override
 		public Dimension getPreferredSize() {
 			return new Dimension(75, 120);
 		}

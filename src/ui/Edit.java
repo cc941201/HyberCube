@@ -20,10 +20,11 @@ class Edit extends JFrame {
 	private Main main;
 	private int mode;
 	private JComponent[][] field = new JComponent[7][7];
-	private JLabel pic;
+	private JPanel pic;
 	private String id, picAddress;
 	private String[][] content;
 	private File picFile;
+	private URL picUrl;
 	private boolean modify;
 
 	/**
@@ -39,6 +40,76 @@ class Edit extends JFrame {
 		setResizable(false);
 		modify = frame.modify;
 
+		// Load picture's background
+		pic = new JPanel() {
+			@Override
+			public void paint(Graphics g) {
+				try {
+					if (frame.modify)
+						g.drawImage(
+								ImageIO.read(new File("res/picbackadd.png")),
+								0, 0, 161, 211, this);
+					else
+						g.drawImage(ImageIO.read(new File("res/picback.png")),
+								0, 0, 161, 211, this);
+					if (picFile != null)
+						g.drawImage((ImageIO.read(picFile)).getScaledInstance(
+								300, 400, java.awt.Image.SCALE_SMOOTH), 0, 0,
+								150, 200, this);
+					else if (picUrl != null)
+						g.drawImage((ImageIO.read(picUrl)).getScaledInstance(
+								300, 400, java.awt.Image.SCALE_SMOOTH), 0, 0,
+								150, 200, this);
+				} catch (Exception e) {
+				}
+			}
+		};
+		pic.setBounds(40, 10, 161, 211);
+		pic.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (modify) {
+					JFileChooser picChooser = new JFileChooser();
+					picChooser.setFileFilter(new FileFilter() {
+						@Override
+						public boolean accept(File file) {
+							boolean flag = false;
+							if (file.isDirectory()
+									|| file.toString().endsWith(".jpg"))
+								flag = true;
+							return flag;
+						}
+
+						@Override
+						public String getDescription() {
+							return "JPG 图像文件";
+						}
+					});
+					int result = picChooser.showOpenDialog(Edit.this);
+					if (result == JFileChooser.APPROVE_OPTION) {
+						picFile = picChooser.getSelectedFile();
+						pic.repaint();
+					}
+				}
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+			}
+		});
+
 		// Get all info
 		if (mode == 1) {
 			try {
@@ -50,15 +121,12 @@ class Edit extends JFrame {
 						content[i][j] = rs.getString(List.COLUMN_NAME[i][j]);
 				picAddress = rs.getString("pic");
 				rs.close();
-				URL picURL = new URL("http://" + Configure.webserverAddress
+				picUrl = new URL("http://" + Configure.webserverAddress
 						+ "/pic/"
 						+ picAddress.substring(0, picAddress.length() - 5)
 						+ "/" + picAddress.substring(picAddress.length() - 5)
 						+ ".jpg");
-				pic = new JLabel(new ImageIcon(
-						(ImageIO.read(picURL)).getScaledInstance(150, 200,
-								java.awt.Image.SCALE_SMOOTH)));
-				pic.setBounds(40, 10, 150, 200);
+				pic.repaint();
 			} catch (Exception e) {
 			}
 		}
@@ -160,68 +228,7 @@ class Edit extends JFrame {
 		basicInfo.setLayout(null);
 
 		// picture
-		try {
-			basicInfo.add(pic);
-		} catch (Exception e) {
-		}
-		final JLabel picback = new JLabel(new ImageIcon("res/addpic.png"));
-		picback.setBounds(40, 10, 158, 208);
-		basicInfo.add(picback);
-		picback.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				if (modify) {
-					JFileChooser picChooser = new JFileChooser();
-					picChooser.setFileFilter(new FileFilter() {
-						@Override
-						public boolean accept(File file) {
-							boolean flag = false;
-							if (file.isDirectory()
-									|| file.toString().endsWith(".jpg"))
-								flag = true;
-							return flag;
-						}
-
-						@Override
-						public String getDescription() {
-							return "JPG 图像文件";
-						}
-					});
-					int result = picChooser.showOpenDialog(Edit.this);
-					if (result == JFileChooser.APPROVE_OPTION) {
-						picFile = picChooser.getSelectedFile();
-						try {
-							if (pic != null)
-								basicInfo.remove(pic);
-							basicInfo.remove(picback);
-							pic = new JLabel(new ImageIcon((ImageIO
-									.read(picFile)).getScaledInstance(150, 200,
-									java.awt.Image.SCALE_SMOOTH)));
-							pic.setBounds(40, 10, 150, 200);
-							basicInfo.add(pic);
-							basicInfo.add(picback);
-						} catch (Exception e1) {
-						}
-					}
-				}
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
-			}
-		});
+		basicInfo.add(pic);
 
 		// id
 		idField = new JTextField();
@@ -316,6 +323,8 @@ class Edit extends JFrame {
 						break;
 					}
 		}
+		if (!modify)
+			field.setEnabled(false);
 		JLabel label = new JLabel(List.COLUMN[x][y] + "：");
 		if (x % 2 == 0) {
 			field.setBounds(320, y * 35 + 20, 134, 28);
