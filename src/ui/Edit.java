@@ -65,7 +65,7 @@ class Edit extends JFrame {
 			}
 		};
 		pic.setBounds(40, 10, 161, 211);
-		pic.addMouseListener(new MouseListener() {
+		pic.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (modify) {
@@ -91,22 +91,6 @@ class Edit extends JFrame {
 						pic.repaint();
 					}
 				}
-			}
-
-			@Override
-			public void mouseEntered(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseExited(MouseEvent e) {
-			}
-
-			@Override
-			public void mousePressed(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseReleased(MouseEvent e) {
 			}
 		});
 
