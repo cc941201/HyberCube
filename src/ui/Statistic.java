@@ -8,6 +8,7 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import java.io.File;
 
 @SuppressWarnings("serial")
 class Statistic extends JFrame {
@@ -31,7 +32,8 @@ class Statistic extends JFrame {
 					shell.setLayout(new FillLayout());
 					Browser browser = new Browser(shell, SWT.NONE);
 					browser.setLayoutData(BorderLayout.CENTER);
-					browser.setUrl("file:///Users/cc941201/Documents/HyberCube/chart/index.html");
+					browser.setUrl("file://"
+							+ new File("chart/index.html").getAbsolutePath());
 				}
 			});
 		}

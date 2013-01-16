@@ -39,7 +39,7 @@ class Port extends JFrame {
 					progressBar.setValue(i * 100 / count);
 					String data = csvScan.nextLine();
 					frame.database.insert(data);
-					String id = data.substring(1, data.indexOf(',') - 1);
+					String id = data.substring(1, data.indexOf('\'', 1));
 					File picFile = new File(picDirectory.getPath() + "/" + id
 							+ ".jpg");
 					if (picFile.exists())

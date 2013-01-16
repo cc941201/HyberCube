@@ -70,16 +70,16 @@ public class Connect {
 			rs.next();
 			String enums = rs.getString("Type");
 			int position = 0, count = 0;
-			while ((position = enums.indexOf("'", position)) > 0) {
-				position = enums.indexOf("'", position + 1) + 1;
+			while ((position = enums.indexOf('\'', position)) > 0) {
+				position = enums.indexOf('\'', position + 1) + 1;
 				count++;
 			}
 			position = 0;
 			list = new String[count + 1];
 			list[0] = "";
 			for (int i = 1; i <= count; i++) {
-				position = enums.indexOf("'", position);
-				int secondPosition = enums.indexOf("'", position + 1);
+				position = enums.indexOf('\'', position);
+				int secondPosition = enums.indexOf('\'', position + 1);
 				list[i] = enums.substring(position + 1, secondPosition);
 				position = secondPosition + 1;
 			}
