@@ -67,7 +67,7 @@ class Main extends JFrame {
 	/**
 	 * Render picture + text list cells
 	 */
-	class PictextList extends JPanel implements ListCellRenderer {
+	private class PictextList extends JPanel implements ListCellRenderer {
 		private boolean isSelected;
 		private int index;
 
@@ -104,7 +104,7 @@ class Main extends JFrame {
 	/**
 	 * Render picture list cells
 	 */
-	class PicList extends JPanel implements ListCellRenderer {
+	private class PicList extends JPanel implements ListCellRenderer {
 		private boolean isSelected;
 		private int index;
 
@@ -305,10 +305,11 @@ class Main extends JFrame {
 		filterButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				query = (String) JOptionPane.showInputDialog(Main.this,
-						"请输入条件：", "筛选", JOptionPane.PLAIN_MESSAGE, null, null,
-						query);
-				refresh();
+				new Filter(Main.this);
+				//query = (String) JOptionPane.showInputDialog(Main.this,
+						//"请输入条件：", "筛选", JOptionPane.PLAIN_MESSAGE, null, null,
+						//query);
+				//refresh();
 			}
 		});
 		getRootPane().setDefaultButton(filterButton);
