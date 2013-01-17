@@ -6,11 +6,11 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.io.File;
 import java.net.URL;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import javax.imageio.ImageIO;
 
 import database.Configure;
+import database.Detail;
 import database.List;
 
 @SuppressWarnings("serial")
@@ -97,20 +97,18 @@ class Edit extends JFrame {
 		// Get all info
 		if (mode == 1) {
 			try {
-				ResultSet rs = frame.database.getOne(id);
-				rs.next();
+				Detail info = new Detail(frame.database, id);
 				content = new String[7][7];
 				for (int i = 0; i < 7; i++)
 					for (int j = 0; j < 7; j++)
-						content[i][j] = rs.getString(List.COLUMN_NAME[i][j]);
-				picAddress = rs.getString("pic");
-				rs.close();
+						content[i][j] = info.get(List.COLUMN_NAME[i][j]);
+				picAddress = info.get("pic");
+				info.close();
 				picUrl = new URL("http://" + Configure.webserverAddress
 						+ "/pic/"
 						+ picAddress.substring(0, picAddress.length() - 5)
 						+ "/" + picAddress.substring(picAddress.length() - 5)
 						+ ".jpg");
-				pic.repaint();
 			} catch (Exception e) {
 			}
 		}

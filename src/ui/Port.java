@@ -7,10 +7,10 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.*;
-import java.sql.ResultSet;
 import java.util.Scanner;
 
 import database.Configure;
+import database.Detail;
 import database.List;
 
 @SuppressWarnings("serial")
@@ -24,6 +24,9 @@ class Port extends JFrame {
 	private File csvFile, picDirectory;
 
 	private class Import extends Thread {
+		// mode 1 = override, mode 2 = merge, mode 3 = ignore
+		private int mode = 0;
+
 		@Override
 		public void run() {
 			try {
@@ -37,9 +40,41 @@ class Port extends JFrame {
 				csvScan = new Scanner(csvFile);
 				for (int i = 0; i < count; i++) {
 					progressBar.setValue(i * 100 / count);
-					String data = csvScan.nextLine();
+					String data = csvScan.nextLine(), id = data.substring(1,
+							data.indexOf('\'', 1));
+					if (frame.database.exist(id)) {
+						if (mode == 0) {
+							String[] option = { "覆盖", "合并", "忽略" };
+							mode = JOptionPane.showOptionDialog(Port.this,
+									"请选择重复项处理方式", "遇到重复项",
+									JOptionPane.YES_NO_CANCEL_OPTION,
+									JOptionPane.QUESTION_MESSAGE, null, option,
+									option[0]) + 1;
+						}
+						switch (mode) {
+						case 1:
+							frame.database.deletePic(frame.webServer, id);
+							frame.database.delete(id);
+							break;
+						case 2:
+							frame.database.merge(id, data);
+							File picFile = new File(picDirectory.getPath()
+									+ "/" + id + ".jpg");
+							if (picFile.exists()) {
+								frame.database.deletePic(frame.webServer, id);
+								frame.database
+										.update(id,
+												"pic",
+												"'"
+														+ frame.webServer
+																.setPic(picFile)
+														+ "'");
+							}
+						case 3:
+							continue;
+						}
+					}
 					frame.database.insert(data);
-					String id = data.substring(1, data.indexOf('\'', 1));
 					File picFile = new File(picDirectory.getPath() + "/" + id
 							+ ".jpg");
 					if (picFile.exists())
@@ -48,10 +83,18 @@ class Port extends JFrame {
 				}
 				csvScan.close();
 				frame.refresh();
+				progressBar.setValue(100);
 				finish();
 			} catch (Exception e) {
+				e.printStackTrace();
 				JOptionPane.showMessageDialog(Port.this, "导入失败！", "错误",
 						JOptionPane.ERROR_MESSAGE);
+				try {
+					if (frame.database.exist("temp"))
+						frame.database.delete("temp");
+				} catch (Exception e1) {
+				}
+				frame.refresh();
 				dispose();
 			}
 		}
@@ -70,11 +113,10 @@ class Port extends JFrame {
 				for (int i = 0; i < id.length; i++) {
 					progressBar.setValue(i * 100 / id.length);
 					csvWrite.print("'" + id[i] + "'");
-					ResultSet rs = frame.database.getOne(id[i]);
-					rs.next();
+					Detail info = new Detail(frame.database, id[i]);
 					for (int x = 0; x < 7; x++)
 						for (int y = 0; y < 7; y++) {
-							String data = rs.getString(List.COLUMN_NAME[x][y]);
+							String data = info.get(List.COLUMN_NAME[x][y]);
 							switch (List.COLUMN_TYPE[x][y]) {
 							case 1:
 								data = "'" + data + "'";
@@ -94,8 +136,8 @@ class Port extends JFrame {
 							csvWrite.print("," + data);
 						}
 					csvWrite.println();
-					String picAddress = rs.getString("pic");
-					rs.close();
+					String picAddress = info.get("pic");
+					info.close();
 					if (picAddress.length() == 32) {
 						ReadableByteChannel url = Channels.newChannel(new URL(
 								"http://"
@@ -122,6 +164,7 @@ class Port extends JFrame {
 					}
 				}
 				csvWrite.close();
+				progressBar.setValue(100);
 				finish();
 			} catch (Exception e) {
 				JOptionPane.showMessageDialog(Port.this, "导出失败！", "错误",

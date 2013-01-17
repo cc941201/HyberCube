@@ -2,6 +2,8 @@ package database;
 
 import java.sql.*;
 
+import server.Interface;
+
 public class Connect {
 	private Statement statement;
 	private Connection conn;
@@ -9,11 +11,10 @@ public class Connect {
 	public String[] name, id, idNum, faculty, pic;
 
 	public Connect() throws Exception {
-		String url = "jdbc:mysql://"
-				+ Configure.databaseAddress
-				+ "/"
-				+ Configure.database
-				+ "?characterEncoding=utf8&jdbcCompliantTruncation=false&zeroDateTimeBehavior=convertToNull";
+		String url = "jdbc:mysql://" + Configure.databaseAddress + "/"
+				+ Configure.database + "?characterEncoding=utf8"
+				+ "&jdbcCompliantTruncation=false"
+				+ "&zeroDateTimeBehavior=convertToNull";
 		Class.forName("com.mysql.jdbc.Driver");
 		conn = DriverManager.getConnection(url, Configure.user,
 				Configure.password);
@@ -28,7 +29,7 @@ public class Connect {
 		}
 	}
 
-	public ResultSet get(String query) throws Exception {
+	ResultSet getBasic(String query) throws Exception {
 		ResultSet rs;
 		statement.setFetchSize(1001);
 		if ((query == null) || query.equals(""))
@@ -40,6 +41,11 @@ public class Connect {
 					.executeQuery("select name,id,idnum,faculty,pic from "
 							+ Configure.table + " where " + query);
 		return rs;
+	}
+
+	ResultSet getOne(String id) throws Exception {
+		return statement.executeQuery("select * from " + Configure.table
+				+ " where id='" + id + "'");
 	}
 
 	public int getCount(String query) throws Exception {
@@ -59,6 +65,15 @@ public class Connect {
 	public void delete(String id) throws Exception {
 		statement.executeUpdate("delete from " + Configure.table
 				+ " where id='" + id + "'");
+	}
+
+	public void deletePic(Interface webServer, String id) throws Exception {
+		ResultSet rs = statement.executeQuery("select pic from "
+				+ Configure.table + " where id='" + id + "'");
+		rs.next();
+		String picAddress = rs.getString(1);
+		if ((picAddress != null) && (picAddress.length() == 32))
+			webServer.deletePic(picAddress);
 	}
 
 	public String[] getEnumList(int x, int y) {
@@ -89,14 +104,9 @@ public class Connect {
 		return list;
 	}
 
-	public ResultSet getOne(String id) throws Exception {
-		return statement.executeQuery("select * from " + Configure.table
-				+ " where id='" + id + "'");
-	}
-
 	public void getData(String query) throws Exception {
 		totalNum = getCount(query);
-		ResultSet rs = get(query);
+		ResultSet rs = getBasic(query);
 		int num = (totalNum > 1000) ? 1000 : totalNum;
 		name = new String[num];
 		id = new String[num];
@@ -116,7 +126,7 @@ public class Connect {
 
 	public String[] getID(String query) throws Exception {
 		String[] id = new String[totalNum];
-		ResultSet rs = get(query);
+		ResultSet rs = getBasic(query);
 		for (int i = 0; i < totalNum; i++) {
 			rs.next();
 			id[i] = rs.getString("id");
@@ -141,5 +151,25 @@ public class Connect {
 	public void update(String id, String col, String data) throws Exception {
 		statement.executeUpdate("update " + Configure.table + " set " + col
 				+ "=" + data + " where id='" + id + "'");
+	}
+
+	public void merge(String id, String data) throws Exception {
+		if (exist("temp"))
+			delete("temp");
+		insert("'temp" + data.substring(data.indexOf('\'', 1)));
+		Detail info = new Detail(this, "temp");
+		String[][] newData = new String[7][7];
+		for (int x = 0; x < 7; x++)
+			for (int y = 0; y < 7; y++)
+				newData[x][y] = info.get(List.COLUMN_NAME[x][y]);
+		info.close();
+		for (int x = 0; x < 7; x++)
+			for (int y = 0; y < 7; y++)
+				if ((newData[x][y] != null) && (!newData[x][y].equals(""))) {
+					if (List.COLUMN_TYPE[x][y] != 2)
+						newData[x][y] = "'" + newData[x][y] + "'";
+					update(id, List.COLUMN_NAME[x][y], newData[x][y]);
+				}
+		delete("temp");
 	}
 }
