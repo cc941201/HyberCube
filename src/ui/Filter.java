@@ -4,18 +4,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+import database.List;
+
 @SuppressWarnings("serial")
 class Filter extends JFrame {
+	private static final int MAX_CONDITION = 128;
+	private static final String[] compareListNull = { "=", "like", "空", "非空" };
+	private static final String[] compareList = { "=", "like" };
 	private JPanel listPane = new JPanel();
 	private JScrollPane scrollPane = new JScrollPane(listPane);
-	private JPanel[] conditionPane = new JPanel[128];
-	private JButton[] deleteButton = new JButton[128];
-	private JComboBox[] box1 = new JComboBox[128], box2 = new JComboBox[128],
-			box3 = new JComboBox[128];
-	private JTextField[] field = new JTextField[128];
+	private JPanel[] conditionPane = new JPanel[MAX_CONDITION];
+	private JButton[] deleteButton = new JButton[MAX_CONDITION];
+	private JComboBox[] colBox = new JComboBox[MAX_CONDITION],
+			compareBox = new JComboBox[MAX_CONDITION],
+			enumBox = new JComboBox[MAX_CONDITION];
+	private JTextField[] field = new JTextField[MAX_CONDITION];
+	private boolean[] showEnumBox = new boolean[MAX_CONDITION],
+			nullList = new boolean[MAX_CONDITION];
 	private int conditionNum = 0;
+	private String[] colList = new String[50], colNameList = new String[50];
+	private int[] colTypeList = new int[50];
+	private String[][] enumList = new String[50][];
 
-	public Filter(Main frame) {
+	Filter(final Main frame) {
 		super("筛选");
 		setSize(500, 350);
 		setResizable(false);
@@ -26,17 +37,77 @@ class Filter extends JFrame {
 		JButton addButton = new JButton("添加");
 		addButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (conditionNum < 128) {
+				if (conditionNum < MAX_CONDITION)
 					addCondition();
-					conditionNum++;
-				}
+				else
+					JOptionPane.showMessageDialog(Filter.this, "条件过多！", "提示",
+							JOptionPane.INFORMATION_MESSAGE);
 			}
 		});
 
 		JButton finishButton = new JButton("完成");
+		finishButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				int[] selectedCol = new int[conditionNum];
+				for (int i = 0; i < conditionNum; i++)
+					selectedCol[i] = colBox[i].getSelectedIndex();
+				String query = "";
+				boolean firstCol = true;
+				for (int i = 0; i < 50; i++) {
+					boolean firstCondition = true;
+					for (int j = 0; j < conditionNum; j++)
+						if (i == selectedCol[j]) {
+							if (firstCol)
+								firstCol = false;
+							else if (firstCondition)
+								query += "and";
+							if (firstCondition) {
+								query += "(";
+								firstCondition = false;
+							} else
+								query += " or ";
+							query += colNameList[i];
+							switch (compareBox[j].getSelectedIndex()) {
+							case 0:
+								query += "=";
+								break;
+							case 1:
+								query += " like ";
+								break;
+							case 2:
+								query += " is null";
+								continue;
+							case 3:
+								query += " is not null";
+								continue;
+							}
+							switch (colTypeList[i]) {
+							case 1:
+							case 3:
+								query += "'" + field[j].getText() + "'";
+								break;
+							case 2:
+								query += field[j].getText();
+								break;
+							case 4:
+								query += String.valueOf(enumBox[j]
+										.getSelectedIndex());
+							}
+						}
+					if (!firstCondition)
+						query += ")";
+				}
+				if (firstCol)
+					query = null;
+				frame.query = query;
+				frame.refresh();
+				setVisible(false);
+			}
+		});
 
 		listPane.setOpaque(false);
-		listPane.setLayout(new WrapLayout());
+		listPane.setLayout(new WrapLayout(FlowLayout.LEFT));
 
 		JPanel bottomPane = new JPanel();
 		bottomPane.setLayout(new BorderLayout(0, 0));
@@ -45,7 +116,17 @@ class Filter extends JFrame {
 		getContentPane().add(scrollPane, BorderLayout.CENTER);
 		getContentPane().add(bottomPane, BorderLayout.SOUTH);
 
-		setVisible(true);
+		colList[0] = "学号";
+		colNameList[0] = "id";
+		colTypeList[0] = 1;
+		for (int x = 0; x < 7; x++)
+			for (int y = 0; y < 7; y++) {
+				colList[x * 7 + y + 1] = List.COLUMN[x][y];
+				colNameList[x * 7 + y + 1] = List.COLUMN_NAME[x][y];
+				colTypeList[x * 7 + y + 1] = List.COLUMN_TYPE[x][y];
+				if (List.COLUMN_TYPE[x][y] == 4)
+					enumList[x * 7 + y + 1] = frame.database.getEnumList(x, y);
+			}
 	}
 
 	private class DeleteListener implements ActionListener {
@@ -68,38 +149,122 @@ class Filter extends JFrame {
 					flag = true;
 				if (flag) {
 					conditionPane[i] = conditionPane[i + 1];
-					box1[i] = box1[i + 1];
-					box2[i] = box2[i + 1];
-					box3[i] = box3[i + 1];
+					deleteButton[i] = deleteButton[i + 1];
+					colBox[i] = colBox[i + 1];
+					compareBox[i] = compareBox[i + 1];
+					enumBox[i] = enumBox[i + 1];
 					field[i] = field[i + 1];
+					showEnumBox[i] = showEnumBox[i + 1];
+					nullList[i] = nullList[i + 1];
 				}
+			}
+			conditionPane[conditionNum] = null;
+			deleteButton[conditionNum] = null;
+			colBox[conditionNum] = null;
+			compareBox[conditionNum] = null;
+			enumBox[conditionNum] = null;
+			field[conditionNum] = null;
+			showEnumBox[conditionNum] = false;
+			nullList[conditionNum] = false;
+		}
+	}
+
+	private class ColumnListener implements ActionListener {
+		private JComboBox box;
+
+		ColumnListener(JComboBox box) {
+			this.box = box;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = -1;
+			for (int i = 0; i < conditionNum; i++)
+				if (colBox[i] == box) {
+					index = i;
+					break;
+				}
+			if (index != -1) {
+				int selected = box.getSelectedIndex();
+				switch (colTypeList[selected]) {
+				case 1:
+					if (nullList[index]) {
+						nullList[index] = false;
+						conditionPane[index].remove(compareBox[index]);
+						compareBox[index] = new JComboBox(compareList);
+						conditionPane[index].add(compareBox[index], 2);
+					} else
+						compareBox[index].setEnabled(true);
+					if (showEnumBox[index]) {
+						showEnumBox[index] = false;
+						conditionPane[index].remove(enumBox[index]);
+						conditionPane[index].add(field[index]);
+					}
+					field[index].setEnabled(true);
+					break;
+				case 2:
+				case 3:
+					if (!nullList[index]) {
+						nullList[index] = true;
+						conditionPane[index].remove(compareBox[index]);
+						compareBox[index] = new JComboBox(compareListNull);
+						conditionPane[index].add(compareBox[index], 2);
+					} else
+						compareBox[index].setEnabled(true);
+					if (showEnumBox[index]) {
+						showEnumBox[index] = false;
+						conditionPane[index].remove(enumBox[index]);
+						conditionPane[index].add(field[index]);
+					}
+					field[index].setEnabled(true);
+					break;
+				case 4:
+					if (nullList[index]) {
+						nullList[index] = false;
+						conditionPane[index].remove(compareBox[index]);
+						compareBox[index] = new JComboBox(compareList);
+						conditionPane[index].add(compareBox[index], 2);
+					} else
+						compareBox[index].setSelectedIndex(0);
+					compareBox[index].setEnabled(false);
+					if (!showEnumBox[index]) {
+						showEnumBox[index] = true;
+						conditionPane[index].remove(field[index]);
+						enumBox[index] = new JComboBox(enumList[selected]);
+						enumBox[index].setPreferredSize(new Dimension(135, 25));
+						conditionPane[index].add(enumBox[index]);
+					}
+					field[index].setEnabled(true);
+				}
+				listPane.validate();
 			}
 		}
 	}
 
 	private void addCondition() {
 		conditionPane[conditionNum] = new JPanel();
-		conditionPane[conditionNum].setOpaque(false);
-		conditionPane[conditionNum].setLayout(new FlowLayout());
 
 		deleteButton[conditionNum] = new JButton("删除");
-		conditionPane[conditionNum].add(deleteButton[conditionNum]);
 		deleteButton[conditionNum].addActionListener(new DeleteListener(
 				conditionPane[conditionNum]));
 
-		box1[conditionNum] = new JComboBox();
-		conditionPane[conditionNum].add(box1[conditionNum]);
-		box1[conditionNum].setPreferredSize(new Dimension(120, 25));
+		colBox[conditionNum] = new JComboBox(colList);
+		colBox[conditionNum].addActionListener(new ColumnListener(
+				colBox[conditionNum]));
 
-		box2[conditionNum] = new JComboBox();
-		conditionPane[conditionNum].add(box2[conditionNum]);
-		box2[conditionNum].setPreferredSize(new Dimension(80, 25));
+		compareBox[conditionNum] = new JComboBox(compareList);
 
 		field[conditionNum] = new JTextField();
 		field[conditionNum].setColumns(10);
-		conditionPane[conditionNum].add(field[conditionNum]);
 
+		conditionPane[conditionNum].setOpaque(false);
+		conditionPane[conditionNum].setLayout(new FlowLayout());
+		conditionPane[conditionNum].add(deleteButton[conditionNum]);
+		conditionPane[conditionNum].add(colBox[conditionNum]);
+		conditionPane[conditionNum].add(compareBox[conditionNum]);
+		conditionPane[conditionNum].add(field[conditionNum]);
 		listPane.add(conditionPane[conditionNum]);
+		conditionNum++;
 		scrollPane.validate();
 	}
 }

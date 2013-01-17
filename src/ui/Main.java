@@ -22,6 +22,7 @@ class Main extends JFrame {
 	boolean modify;
 	Connect database;
 	Interface webServer;
+	private Filter filter;
 	private boolean[] buffered = new boolean[1000];
 	private BufferedImage[] bufferedImage = new BufferedImage[1000];
 	BufferedImage nopic;
@@ -30,7 +31,7 @@ class Main extends JFrame {
 	private JList list;
 	private JTable table;
 	private JToggleButton textmode, pictextmode, picmode;
-	private String query;
+	String query;
 	// mode 1 = text-only; mode 2 = picture + text; mode 3 = picture-only
 	private int currentMode = 1;
 
@@ -305,11 +306,9 @@ class Main extends JFrame {
 		filterButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new Filter(Main.this);
-				//query = (String) JOptionPane.showInputDialog(Main.this,
-						//"请输入条件：", "筛选", JOptionPane.PLAIN_MESSAGE, null, null,
-						//query);
-				//refresh();
+				if (filter == null)
+					filter = new Filter(Main.this);
+				filter.setVisible(true);
 			}
 		});
 		getRootPane().setDefaultButton(filterButton);

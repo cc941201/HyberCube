@@ -30,7 +30,7 @@ class Edit extends JFrame {
 	/**
 	 * mode 0 = add, mode 1 = edit
 	 */
-	public Edit(final Main frame, final int mode, String id) {
+	Edit(final Main frame, final int mode, String id) {
 		super(NAME[mode] + "资料");
 		main = frame;
 		this.mode = mode;
@@ -177,7 +177,7 @@ class Edit extends JFrame {
 			idField.requestFocus();
 	}
 
-	class NumberInputVerifier extends InputVerifier {
+	private class NumberInputVerifier extends InputVerifier {
 		@Override
 		public boolean verify(JComponent field) {
 			boolean flag = false;
@@ -192,7 +192,7 @@ class Edit extends JFrame {
 		}
 	}
 
-	class NullInputVerifier extends InputVerifier {
+	private class NullInputVerifier extends InputVerifier {
 		@Override
 		public boolean verify(JComponent field) {
 			boolean flag = false;
