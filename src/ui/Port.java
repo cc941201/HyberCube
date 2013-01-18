@@ -142,7 +142,8 @@ class Port extends JFrame {
 						ReadableByteChannel url = Channels.newChannel(new URL(
 								"http://"
 										+ Configure.webserverAddress
-										+ "/pic/"
+										+ "/"
+										+ Configure.picDirectory
 										+ picAddress.substring(0,
 												picAddress.length() - 5)
 										+ "/"
