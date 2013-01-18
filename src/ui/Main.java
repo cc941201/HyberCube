@@ -298,7 +298,7 @@ class Main extends JFrame {
 		statisticButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new Statistic(display, query);
+				new Statistic(Main.this, display, query);
 			}
 		});
 

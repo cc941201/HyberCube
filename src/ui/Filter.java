@@ -169,6 +169,29 @@ class Filter extends JFrame {
 		}
 	}
 
+	private class NullListener implements ActionListener {
+		private JComboBox box;
+
+		NullListener(JComboBox box) {
+			this.box = box;
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int index = -1;
+			for (int i = 0; i < conditionNum; i++)
+				if (compareBox[i] == box) {
+					index = i;
+					break;
+				}
+			if (index != -1)
+				if (box.getSelectedIndex() > 1)
+					field[index].setEnabled(false);
+				else
+					field[index].setEnabled(true);
+		}
+	}
+
 	private class ColumnListener implements ActionListener {
 		private JComboBox box;
 
@@ -208,6 +231,8 @@ class Filter extends JFrame {
 						nullList[index] = true;
 						conditionPane[index].remove(compareBox[index]);
 						compareBox[index] = new JComboBox(compareListNull);
+						compareBox[index].addActionListener(new NullListener(
+								compareBox[index]));
 						conditionPane[index].add(compareBox[index], 2);
 					} else
 						compareBox[index].setEnabled(true);

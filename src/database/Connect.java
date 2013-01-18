@@ -62,6 +62,34 @@ public class Connect {
 		return countNum;
 	}
 
+	public Count[] getStatistic(String col, String query) throws Exception {
+		String sql;
+		if (col.equals("age"))
+			sql = "select count(*),(YEAR(CURDATE())-YEAR(birthday))-"
+					+ "(RIGHT(CURDATE(),5)<RIGHT(birthday,5)) as age from "
+					+ Configure.table;
+		else
+			sql = "select count(*) as c," + col + " from " + Configure.table;
+		if ((query != null) && !query.equals(""))
+			sql += " where " + query;
+		if (col.equals("age"))
+			sql += " group by age order by age";
+		else
+			sql += " group by " + col + " order by c desc";
+		ResultSet rs = statement.executeQuery(sql);
+		int count = 0;
+		while (rs.next())
+			count++;
+		rs.first();
+		Count[] data = new Count[count];
+		for (int i = 0; i < count; i++) {
+			data[i] = new Count(rs.getString(2), rs.getInt(1));
+			rs.next();
+		}
+		rs.close();
+		return data;
+	}
+
 	public void delete(String id) throws Exception {
 		statement.executeUpdate("delete from " + Configure.table
 				+ " where id='" + id + "'");
