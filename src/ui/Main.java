@@ -46,7 +46,8 @@ class Main extends JFrame {
 			try {
 				URL picURL = new URL("http://"
 						+ Configure.webserverAddress
-						+ "/pic/"
+						+ "/"
+						+ Configure.picDirectory
 						+ database.pic[index].substring(0,
 								database.pic[index].length() - 5)
 						+ "/"

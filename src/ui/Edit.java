@@ -104,8 +104,8 @@ class Edit extends JFrame {
 						content[i][j] = info.get(List.COLUMN_NAME[i][j]);
 				picAddress = info.get("pic");
 				info.close();
-				picUrl = new URL("http://" + Configure.webserverAddress
-						+ "/pic/"
+				picUrl = new URL("http://" + Configure.webserverAddress + "/"
+						+ Configure.picDirectory
 						+ picAddress.substring(0, picAddress.length() - 5)
 						+ "/" + picAddress.substring(picAddress.length() - 5)
 						+ ".jpg");

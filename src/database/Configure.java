@@ -5,7 +5,7 @@ import java.util.Scanner;
 
 public class Configure {
 	public static String line, databaseAddress, webserverAddress,
-			siteDirectory, database, table, user, password;
+			siteDirectory, picDirectory, database, table, user, password;
 
 	public static void read() throws Exception {
 		FileReader in = new FileReader("database.conf");
@@ -20,6 +20,11 @@ public class Configure {
 				siteDirectory = conf.next();
 				if (!siteDirectory.endsWith("/"))
 					siteDirectory += "/";
+			}
+			if (line.equals("[pic_directory]")) {
+				picDirectory = conf.next();
+				if (!picDirectory.endsWith("/"))
+					picDirectory += "/";
 			}
 			if (line.equals("[database]"))
 				database = conf.next();

@@ -34,10 +34,11 @@ class Server extends UnicastRemoteObject implements Interface {
 				s2 = "";
 				for (int i = 0; i < 5; i++)
 					s2 += (char) (rand.nextInt(26) + 97);
-				pic1 = new File(Configure.siteDirectory + "pic/" + s1 + "/"
-						+ s2 + ".jpg");
+				pic1 = new File(Configure.siteDirectory
+						+ Configure.picDirectory + s1 + "/" + s2 + ".jpg");
 			} while (pic1.exists());
-			File path = new File(Configure.siteDirectory + "pic/" + s1 + "/");
+			File path = new File(Configure.siteDirectory
+					+ Configure.picDirectory + s1 + "/");
 			if (!path.exists())
 				path.mkdirs();
 			FileInputStream inStream = new FileInputStream(pic);
@@ -74,7 +75,8 @@ class Server extends UnicastRemoteObject implements Interface {
 				File move = new File(Configure.siteDirectory + "picdeleted/"
 						+ name.substring(0, name.length() - 5) + "/"
 						+ name.substring(name.length() - 5) + ".jpg");
-				File oldPath = new File(Configure.siteDirectory + "pic/"
+				File oldPath = new File(Configure.siteDirectory
+						+ Configure.picDirectory
 						+ name.substring(0, name.length() - 5) + "/");
 				File newPath = new File(Configure.siteDirectory + "picdeleted/"
 						+ name.substring(0, name.length() - 5) + "/");
