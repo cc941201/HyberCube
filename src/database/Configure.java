@@ -4,8 +4,8 @@ import java.io.FileReader;
 import java.util.Scanner;
 
 public class Configure {
-	public static String line, databaseAddress, webserverAddress,
-			siteDirectory, picDirectory, database, table, user, password;
+	public static String databaseAddress, webserverAddress, siteDirectory,
+			picDirectory, database, table, user, password;
 
 	public static void read() throws Exception {
 		FileReader in = new FileReader("database.conf");
