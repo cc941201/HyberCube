@@ -15,7 +15,7 @@ public class Connect {
 				+ Configure.database + "?characterEncoding=utf8"
 				+ "&jdbcCompliantTruncation=false"
 				+ "&zeroDateTimeBehavior=convertToNull";
-		Class.forName("com.mysql.jdbc.Driver");
+		Class.forName("org.mariadb.jdbc.Driver");
 		conn = DriverManager.getConnection(url, Configure.user,
 				Configure.password);
 		statement = conn.createStatement();

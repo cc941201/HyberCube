@@ -346,7 +346,6 @@ class Main extends JFrame {
 					} catch (Exception e1) {
 						JOptionPane.showMessageDialog(Main.this, "删除失败", "错误",
 								JOptionPane.ERROR_MESSAGE);
-						e1.printStackTrace();
 					}
 			}
 		});
