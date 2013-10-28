@@ -15,7 +15,7 @@ class Filter extends JFrame {
 	private JScrollPane scrollPane = new JScrollPane(listPane);
 	private JPanel[] conditionPane = new JPanel[MAX_CONDITION];
 	private JButton[] deleteButton = new JButton[MAX_CONDITION];
-	private JComboBox[] colBox = new JComboBox[MAX_CONDITION],
+	private JComboBox<?>[] colBox = new JComboBox[MAX_CONDITION],
 			compareBox = new JComboBox[MAX_CONDITION],
 			enumBox = new JComboBox[MAX_CONDITION];
 	private JTextField[] field = new JTextField[MAX_CONDITION];
@@ -170,9 +170,9 @@ class Filter extends JFrame {
 	}
 
 	private class NullListener implements ActionListener {
-		private JComboBox box;
+		private JComboBox<?> box;
 
-		NullListener(JComboBox box) {
+		NullListener(JComboBox<?> box) {
 			this.box = box;
 		}
 
@@ -193,9 +193,9 @@ class Filter extends JFrame {
 	}
 
 	private class ColumnListener implements ActionListener {
-		private JComboBox box;
+		private JComboBox<?> box;
 
-		ColumnListener(JComboBox box) {
+		ColumnListener(JComboBox<?> box) {
 			this.box = box;
 		}
 
@@ -214,7 +214,7 @@ class Filter extends JFrame {
 					if (nullList[index]) {
 						nullList[index] = false;
 						conditionPane[index].remove(compareBox[index]);
-						compareBox[index] = new JComboBox(compareList);
+						compareBox[index] = new JComboBox<String>(compareList);
 						conditionPane[index].add(compareBox[index], 2);
 					} else
 						compareBox[index].setEnabled(true);
@@ -230,7 +230,7 @@ class Filter extends JFrame {
 					if (!nullList[index]) {
 						nullList[index] = true;
 						conditionPane[index].remove(compareBox[index]);
-						compareBox[index] = new JComboBox(compareListNull);
+						compareBox[index] = new JComboBox<String>(compareListNull);
 						compareBox[index].addActionListener(new NullListener(
 								compareBox[index]));
 						conditionPane[index].add(compareBox[index], 2);
@@ -247,7 +247,7 @@ class Filter extends JFrame {
 					if (nullList[index]) {
 						nullList[index] = false;
 						conditionPane[index].remove(compareBox[index]);
-						compareBox[index] = new JComboBox(compareList);
+						compareBox[index] = new JComboBox<String>(compareList);
 						conditionPane[index].add(compareBox[index], 2);
 					} else
 						compareBox[index].setSelectedIndex(0);
@@ -255,7 +255,7 @@ class Filter extends JFrame {
 					if (!showEnumBox[index]) {
 						showEnumBox[index] = true;
 						conditionPane[index].remove(field[index]);
-						enumBox[index] = new JComboBox(enumList[selected]);
+						enumBox[index] = new JComboBox<String>(enumList[selected]);
 						enumBox[index].setPreferredSize(new Dimension(135, 25));
 						conditionPane[index].add(enumBox[index]);
 					}
@@ -273,11 +273,11 @@ class Filter extends JFrame {
 		deleteButton[conditionNum].addActionListener(new DeleteListener(
 				conditionPane[conditionNum]));
 
-		colBox[conditionNum] = new JComboBox(colList);
+		colBox[conditionNum] = new JComboBox<String>(colList);
 		colBox[conditionNum].addActionListener(new ColumnListener(
 				colBox[conditionNum]));
 
-		compareBox[conditionNum] = new JComboBox(compareList);
+		compareBox[conditionNum] = new JComboBox<String>(compareList);
 
 		field[conditionNum] = new JTextField();
 		field[conditionNum].setColumns(10);

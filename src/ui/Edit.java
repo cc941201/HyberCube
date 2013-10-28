@@ -296,11 +296,11 @@ class Edit extends JFrame {
 			break;
 		case 4:
 			String[] list = main.database.getEnumList(x, y);
-			field = new JComboBox(list);
+			field = new JComboBox<String>(list);
 			if (mode == 1)
 				for (int i = 0; i < list.length; i++)
 					if (content[x][y].equals(list[i])) {
-						((JComboBox) field).setSelectedIndex(i);
+						((JComboBox<?>) field).setSelectedIndex(i);
 						content[x][y] = String.valueOf(i);
 						break;
 					}
@@ -332,7 +332,7 @@ class Edit extends JFrame {
 	private String getOne(int x, int y) {
 		String data;
 		if (List.COLUMN_TYPE[x][y] == 4)
-			data = String.valueOf(((JComboBox) field[x][y]).getSelectedIndex());
+			data = String.valueOf(((JComboBox<?>) field[x][y]).getSelectedIndex());
 		else if (List.COLUMN_TYPE[x][y] == 2) {
 			data = ((JTextField) field[x][y]).getText();
 			if (data.equals(""))

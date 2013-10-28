@@ -28,7 +28,7 @@ class Main extends JFrame {
 	BufferedImage nopic;
 	private JLabel totalNumLabel = new JLabel("");
 	private JPanel listPane;
-	private JList list;
+	private JList<String> list;
 	private JTable table;
 	private JToggleButton textmode, pictextmode, picmode;
 	String query;
@@ -69,12 +69,12 @@ class Main extends JFrame {
 	/**
 	 * Render picture + text list cells
 	 */
-	private class PictextList extends JPanel implements ListCellRenderer {
+	private class PictextList extends JPanel implements ListCellRenderer<Object> {
 		private boolean isSelected;
 		private int index;
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value,
+		public Component getListCellRendererComponent(JList<?> list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			this.isSelected = isSelected;
 			this.index = index;
@@ -106,12 +106,12 @@ class Main extends JFrame {
 	/**
 	 * Render picture list cells
 	 */
-	private class PicList extends JPanel implements ListCellRenderer {
+	private class PicList extends JPanel implements ListCellRenderer<Object> {
 		private boolean isSelected;
 		private int index;
 
 		@Override
-		public Component getListCellRendererComponent(JList list, Object value,
+		public Component getListCellRendererComponent(JList<?> list, Object value,
 				int index, boolean isSelected, boolean cellHasFocus) {
 			this.isSelected = isSelected;
 			this.index = index;
@@ -170,7 +170,7 @@ class Main extends JFrame {
 			});
 			listScroller = new JScrollPane(table);
 		} else {
-			list = new JList(database.id);
+			list = new JList<String>(database.id);
 			if (mode == 2)
 				list.setCellRenderer(new PictextList());
 			else
