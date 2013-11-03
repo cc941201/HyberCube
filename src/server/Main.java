@@ -23,7 +23,7 @@ public class Main extends JFrame {
 		setSize(500, 280);
 		setLocationRelativeTo(null);
 		setResizable(false);
-		setBackground(Color.black);
+		getContentPane().setBackground(Color.black);
 		getContentPane().setLayout(null);
 
 		JPanel animated = new JPanel() {
